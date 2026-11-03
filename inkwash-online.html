@@ -281,8 +281,8 @@ var D2R=Math.PI/180;
 var TRAJ={
   v:19.8,         // 初速(px/フレーム)
   straight:4,     // 直進フレーム(この間は減速も落下もしない)
-  range:295,      // 最大射程(インクの着地距離 px)
-  g:0.2,        // 落下加速(px/frame^2)
+  range:177,      // 最大射程(インクの着地距離 px) 旧295→-40%
+  g:0.59,       // 落下加速(px/frame^2) 旧0.2→射程を約40%短縮(標準視点で570→約350px)
   muzzle:26,      // 銃口の高さ
   dmg:36,         // 最大ダメージ(3発確定=36x3>100)
   dmgMin:34/36,   // 最大射程付近のダメージ倍率(公開値 25~36)
@@ -355,13 +355,13 @@ root.SplatShooter=api;
 var SS=window.SplatShooter;
 var BAL={shot:{splat:true,fall:[SS.TRAJ.fallFrom,SS.TRAJ.fallTo,SS.TRAJ.dmgMin]}};
 var WEAPONS=[
- {id:'shot',name:'スプラシューター',desc:'標準モデル。サブ:くっつきボム / スペシャル:三連ブラスト(固定)。',sub:'stick',sp:'tri',pal:[0xffd53a,0x5a2fd0,0x2f6bff,0x5a2fd0],cd:SS.TRAJ.cd/60,ink:SS.TRAJ.ink,n:1,fan:0,spread:0,dmg:SS.TRAJ.dmg,v:0,range:SS.TRAJ.range,er:2,bs:1,spd:1,keep:150,ai:280,xh:170,sc:1},
- {id:'collab',name:'スプラシューターコラボ',desc:'ピンクの派生モデル。サブ:インクボム / スペシャル:トリオサイクロン(固定)。',sub:'splash',sp:'storm3',pal:[0xff3e9a,0x4a2fd0,0xffd53a,0xffffff],cd:SS.TRAJ.cd/60,ink:SS.TRAJ.ink,n:1,fan:0,spread:0,dmg:SS.TRAJ.dmg,v:0,range:SS.TRAJ.range,er:2,bs:1,spd:1,keep:150,ai:280,xh:170,sc:1},
- {id:'replica',name:'ヒーローシューターレプリカ',desc:'全体が黄色のレプリカ。サブ:くっつきボム / スペシャル:三連ブラスト(固定)。',sub:'stick',sp:'tri',pal:[0xe6dc3c,0x2a2a2a,0x2a2a2a,0x2a2a2a],cd:SS.TRAJ.cd/60,ink:SS.TRAJ.ink,n:1,fan:0,spread:0,dmg:SS.TRAJ.dmg,v:0,range:SS.TRAJ.range,er:2,bs:1,spd:1,keep:150,ai:280,xh:170,sc:1},
- {id:'order',name:'オーダーシューターレプリカ',desc:'ベージュのレプリカ。サブ:くっつきボム / スペシャル:三連ブラスト(固定)。',sub:'stick',sp:'tri',pal:[0xf1dcc2,0x1c1c20,0x4a4a50,0x4a4a50],cd:SS.TRAJ.cd/60,ink:SS.TRAJ.ink,n:1,fan:0,spread:0,dmg:SS.TRAJ.dmg,v:0,range:SS.TRAJ.range,er:2,bs:1,spd:1,keep:150,ai:280,xh:170,sc:1},
- {id:'kou',name:'スプラシューター煌',desc:'灰色とティールの派生モデル。サブ:ミニボム / スペシャル:ジャイアントイカ(固定)。',sub:'quick',sp:'kraken',pal:[0x3a3d46,0x14141a,0xb9a3ff,0x4de0d0],cd:SS.TRAJ.cd/60,ink:SS.TRAJ.ink,n:1,fan:0,spread:0,dmg:SS.TRAJ.dmg,v:0,range:SS.TRAJ.range,er:2,bs:1,spd:1,keep:150,ai:280,xh:170,sc:1},
- {id:'octo',name:'オクトシューターレプリカ',desc:'黒いレプリカ。サブ:インクボム / スペシャル:トリオサイクロン(固定)。',sub:'splash',sp:'storm3',pal:[0x25262c,0x15151a,0x8d9199,0xf2f2f2],cd:SS.TRAJ.cd/60,ink:SS.TRAJ.ink,n:1,fan:0,spread:0,dmg:SS.TRAJ.dmg,v:0,range:SS.TRAJ.range,er:2,bs:1,spd:1,keep:150,ai:280,xh:170,sc:1},
- {id:'pet',name:'ペットシューターレプリカ',desc:'白いレプリカ。サブ:インクボム / スペシャル:トリオサイクロン(固定)。',sub:'splash',sp:'storm3',pal:[0xf3f3f3,0x7a4fd0,0xe8e8e8,0xc83a3a],cd:SS.TRAJ.cd/60,ink:SS.TRAJ.ink,n:1,fan:0,spread:0,dmg:SS.TRAJ.dmg,v:0,range:SS.TRAJ.range,er:2,bs:1,spd:1,keep:150,ai:280,xh:170,sc:1}
+ {id:'shot',name:'スプラシューター',desc:'標準モデル。サブ:くっつきボム / スペシャル:三連ブラスト(固定)。',sub:'stick',sp:'tri',pal:[0xffd53a,0x5a2fd0,0x2f6bff,0x5a2fd0],cd:SS.TRAJ.cd/60,ink:SS.TRAJ.ink,n:1,fan:0,spread:0,dmg:SS.TRAJ.dmg,v:0,range:SS.TRAJ.range,er:2,bs:1,spd:1,keep:90,ai:170,xh:100,sc:1},
+ {id:'collab',name:'スプラシューターコラボ',desc:'ピンクの派生モデル。サブ:インクボム / スペシャル:トリオサイクロン(固定)。',sub:'splash',sp:'storm3',pal:[0xff3e9a,0x4a2fd0,0xffd53a,0xffffff],cd:SS.TRAJ.cd/60,ink:SS.TRAJ.ink,n:1,fan:0,spread:0,dmg:SS.TRAJ.dmg,v:0,range:SS.TRAJ.range,er:2,bs:1,spd:1,keep:90,ai:170,xh:100,sc:1},
+ {id:'replica',name:'ヒーローシューターレプリカ',desc:'全体が黄色のレプリカ。サブ:くっつきボム / スペシャル:三連ブラスト(固定)。',sub:'stick',sp:'tri',pal:[0xe6dc3c,0x2a2a2a,0x2a2a2a,0x2a2a2a],cd:SS.TRAJ.cd/60,ink:SS.TRAJ.ink,n:1,fan:0,spread:0,dmg:SS.TRAJ.dmg,v:0,range:SS.TRAJ.range,er:2,bs:1,spd:1,keep:90,ai:170,xh:100,sc:1},
+ {id:'order',name:'オーダーシューターレプリカ',desc:'ベージュのレプリカ。サブ:くっつきボム / スペシャル:三連ブラスト(固定)。',sub:'stick',sp:'tri',pal:[0xf1dcc2,0x1c1c20,0x4a4a50,0x4a4a50],cd:SS.TRAJ.cd/60,ink:SS.TRAJ.ink,n:1,fan:0,spread:0,dmg:SS.TRAJ.dmg,v:0,range:SS.TRAJ.range,er:2,bs:1,spd:1,keep:90,ai:170,xh:100,sc:1},
+ {id:'kou',name:'スプラシューター煌',desc:'灰色とティールの派生モデル。サブ:ミニボム / スペシャル:ジャイアントイカ(固定)。',sub:'quick',sp:'kraken',pal:[0x3a3d46,0x14141a,0xb9a3ff,0x4de0d0],cd:SS.TRAJ.cd/60,ink:SS.TRAJ.ink,n:1,fan:0,spread:0,dmg:SS.TRAJ.dmg,v:0,range:SS.TRAJ.range,er:2,bs:1,spd:1,keep:90,ai:170,xh:100,sc:1},
+ {id:'octo',name:'オクトシューターレプリカ',desc:'黒いレプリカ。サブ:インクボム / スペシャル:トリオサイクロン(固定)。',sub:'splash',sp:'storm3',pal:[0x25262c,0x15151a,0x8d9199,0xf2f2f2],cd:SS.TRAJ.cd/60,ink:SS.TRAJ.ink,n:1,fan:0,spread:0,dmg:SS.TRAJ.dmg,v:0,range:SS.TRAJ.range,er:2,bs:1,spd:1,keep:90,ai:170,xh:100,sc:1},
+ {id:'pet',name:'ペットシューターレプリカ',desc:'白いレプリカ。サブ:インクボム / スペシャル:トリオサイクロン(固定)。',sub:'splash',sp:'storm3',pal:[0xf3f3f3,0x7a4fd0,0xe8e8e8,0xc83a3a],cd:SS.TRAJ.cd/60,ink:SS.TRAJ.ink,n:1,fan:0,spread:0,dmg:SS.TRAJ.dmg,v:0,range:SS.TRAJ.range,er:2,bs:1,spd:1,keep:90,ai:170,xh:100,sc:1}
 ];
 var SPECIALS=[
  {id:'tri',name:'三連ブラスト',desc:'巨大な弾を3発、連続で発射。1発ごとに3つの弾が広がって爆発する。8秒間、撃ち終わるまで動きが遅くなる。'},
@@ -1083,7 +1083,7 @@ function shotElev(e){
   if(e.net)return (-aimPhiOf(e.net.pitch)+0.11)*2+4.5*Math.PI/180;
   if(e.isP)return (-aimPhi()+0.11)*2+4.5*Math.PI/180;/* 弾道チューナーで決めた値 */
   var A=e.ai,tg=A&&A.tgt;
-  if(tg&&tg.alive){var dd=Math.max(30,Math.hypot(tg.x-e.x,tg.y-e.y));return clamp(Math.atan2((tg.z||0)+14-((e.z||0)+MUZZLE),dd)+0.08*Math.min(1,dd/295),-0.9,0.7);}
+  if(tg&&tg.alive){var dd=Math.max(30,Math.hypot(tg.x-e.x,tg.y-e.y));return clamp(Math.atan2((tg.z||0)+14-((e.z||0)+MUZZLE),dd)+0.08*Math.min(1,dd/SS.TRAJ.range),-0.9,0.7);}
   if(A&&A.tx!==undefined){var dp=clamp(Math.hypot(A.tx-e.x,A.ty-e.y),50,e.w.range);return -Math.atan2(MUZZLE,dp)*0.9;}
   return 0;
 }
