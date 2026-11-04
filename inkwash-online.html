@@ -207,7 +207,7 @@ body.spec .tbtn,body.spec #xh,body.spec #sp,body.spec #sphint{display:none!impor
       <div id="onroom" hidden>
         <div class="onr"><b id="oncodeshow"></b><button class="ghost" id="oncopy" type="button">リンクをコピー</button><button class="ghost" id="onleave" type="button">抜ける</button></div>
         <label id="onautol"><input type="checkbox" id="onauto"> 承認なしで入れる</label>
-        <label id="onmodel">ルール <select id="onmode"><option value="0">ナワバリバトル</option><option value="3">ガチエリア</option></select></label>
+        <label id="onmodel">ルール <select id="onmode"><option value="0">ナワバリバトル</option><option value="2">ガチヤグラ</option><option value="3">ガチエリア</option><option value="4">ガチホコバトル</option></select></label>
         <label id="onbotl"><input type="checkbox" id="onbot" checked> 足りない枠をBOTで埋める</label>
         <div id="onreq"></div>
         <ul id="onlist"></ul>
@@ -2023,9 +2023,9 @@ function hokoSync(){
   }
 }
 function hudHoko(){
-  var T1=HK.C[1],T2=HK.C[2],h=HK.holder,msg='',cls='',pt=player.team;
-  plaEl.textContent='あなた'+(HK.gp[1]>=0?' 関門済':'');
-  plbEl.textContent='相手'+(HK.gp[2]>=0?' 関門済':'');
+  var LT=(ONL&&!NETSPEC&&player.team===2)?2:1,RT=3-LT,T1=HK.C[LT],T2=HK.C[RT],h=HK.holder,msg='',cls='',pt=player.team;
+  plaEl.textContent=(NETSPEC?'オレンジ':'あなた')+(HK.gp[LT]>=0?' 関門済':'');
+  plbEl.textContent=(NETSPEC?'ブルー':'相手')+(HK.gp[RT]>=0?' 関門済':'');
   paEl.textContent=String(Math.ceil(T1));pbEl.textContent=String(Math.ceil(T2));
   baEl.style.width=(100-T1)+'%';bbEl.style.width=(100-T2)+'%';
   if(HK.state==='held'&&h){
@@ -2255,8 +2255,8 @@ function ygSync(){
   });
 }
 function hudYag(){
-  var T1=YG.C[1],T2=YG.C[2],pt=player.team,msg='',cls='',mine=YG.n[pt],opp=YG.n[3-pt];
-  plaEl.textContent='あなた';plbEl.textContent='相手';
+  var LT=(ONL&&!NETSPEC&&player.team===2)?2:1,T1=YG.C[LT],T2=YG.C[3-LT],pt=player.team,msg='',cls='',mine=YG.n[pt],opp=YG.n[3-pt];
+  plaEl.textContent=NETSPEC?'オレンジ':'あなた';plbEl.textContent=NETSPEC?'ブルー':'相手';
   paEl.textContent=String(Math.ceil(T1));pbEl.textContent=String(Math.ceil(T2));
   baEl.style.width=(100-T1)+'%';bbEl.style.width=(100-T2)+'%';
   if(mine&&opp){msg='ヤグラが止まっている! 奪え';cls='def';}
@@ -3530,31 +3530,35 @@ function endMatch(){
     return;
   }
   if(MODE==='yagura'&&YG){
-    var ya=Math.ceil(YG.C[1]),yb=Math.ceil(YG.C[2]),yw=0;
-    if(YG.ko)yw=YG.ko;else if(YG.C[1]<YG.C[2])yw=1;else if(YG.C[2]<YG.C[1])yw=2;
+    var LT=(ONL&&!NETSPEC&&player.team===2)?2:1,RT=3-LT;
+    var ya=Math.ceil(YG.C[LT]),yb=Math.ceil(YG.C[RT]),yw=0;
+    if(YG.ko)yw=YG.ko===LT?1:2;else if(YG.C[LT]<YG.C[RT])yw=1;else if(YG.C[RT]<YG.C[LT])yw=2;
     res=yw===0?'DRAW':(yw===1?'WIN!':'LOSE');
     title.className=yw===1?'result win':(yw===2?'result lose':'result');
     title.textContent=(YG.ko?'KO ':'')+res;
-    $('endA').textContent='あなた カウント '+ya;
-    $('endB').textContent='相手 カウント '+yb;
-    var yq1=100-YG.C[1],yq2=100-YG.C[2],yqs=(yq1+yq2)||1;
+    if(NETSPEC){res=yw===0?'DRAW':(yw===1?'オレンジの勝ち':'ブルーの勝ち');title.className='result';title.textContent=(YG.ko?'KO ':'')+res;}
+    $('endA').textContent=(NETSPEC?'オレンジ':'あなた')+' カウント '+ya;
+    $('endB').textContent=(NETSPEC?'ブルー':'相手')+' カウント '+yb;
+    var yq1=100-YG.C[LT],yq2=100-YG.C[RT],yqs=(yq1+yq2)||1;
     $('endBa').style.width=(yq1/yqs*100)+'%';$('endBb').style.width=(yq2/yqs*100)+'%';$('endBn').style.width='0%';
-    $('endStats').textContent='関門突破 '+YG.st.pass+'回 ・ 倒した '+player.kills+'回 ・ やられた '+player.deaths+'回';
+    $('endStats').textContent='関門突破 '+YG.st.pass+'回'+(NETSPEC?' ・ 観戦しました':' ・ 倒した '+player.kills+'回 ・ やられた '+player.deaths+'回');
     $('end').hidden=false;
     sfx(yw===1?784:300,0.5,'triangle',0.06,yw===1?1.6:0.6);
     return;
   }
   if(MODE==='hoko'&&HK){
-    var ca=Math.ceil(HK.C[1]),cb=Math.ceil(HK.C[2]),hw=0;
-    if(HK.ko)hw=HK.ko;else if(HK.C[1]<HK.C[2])hw=1;else if(HK.C[2]<HK.C[1])hw=2;
+    var LT=(ONL&&!NETSPEC&&player.team===2)?2:1,RT=3-LT;
+    var ca=Math.ceil(HK.C[LT]),cb=Math.ceil(HK.C[RT]),hw=0;
+    if(HK.ko)hw=HK.ko===LT?1:2;else if(HK.C[LT]<HK.C[RT])hw=1;else if(HK.C[RT]<HK.C[LT])hw=2;
     res=hw===0?'DRAW':(hw===1?'WIN!':'LOSE');
     title.className=hw===1?'result win':(hw===2?'result lose':'result');
     title.textContent=(HK.ko?'KO ':'')+res;
-    $('endA').textContent='あなた カウント '+ca;
-    $('endB').textContent='相手 カウント '+cb;
-    var q1=100-HK.C[1],q2=100-HK.C[2],qs=(q1+q2)||1;
+    if(NETSPEC){res=hw===0?'DRAW':(hw===1?'オレンジの勝ち':'ブルーの勝ち');title.className='result';title.textContent=(HK.ko?'KO ':'')+res;}
+    $('endA').textContent=(NETSPEC?'オレンジ':'あなた')+' カウント '+ca;
+    $('endB').textContent=(NETSPEC?'ブルー':'相手')+' カウント '+cb;
+    var q1=100-HK.C[LT],q2=100-HK.C[RT],qs=(q1+q2)||1;
     $('endBa').style.width=(q1/qs*100)+'%';$('endBb').style.width=(q2/qs*100)+'%';$('endBn').style.width='0%';
-    $('endStats').textContent='関門 '+(HK.gp[1]>=0?'突破':'未突破')+'(相手 '+(HK.gp[2]>=0?'突破':'未突破')+') ・ 倒した '+player.kills+'回 ・ やられた '+player.deaths+'回';
+    $('endStats').textContent='関門 '+(HK.gp[LT]>=0?'突破':'未突破')+'(相手 '+(HK.gp[RT]>=0?'突破':'未突破')+')'+(NETSPEC?' ・ 観戦しました':' ・ 倒した '+player.kills+'回 ・ やられた '+player.deaths+'回');
     $('end').hidden=false;
     sfx(hw===1?784:300,0.5,'triangle',0.06,hw===1?1.6:0.6);
     return;
@@ -3766,7 +3770,7 @@ function netHostTick(dt){
   NP.acc+=dt;if(NP.acc<0.05)return;NP.acc=0;
   if(state!=='play')return;
   var ids=Object.keys(NP.guests);if(!ids.length){NETD=[];NETFULL=false;return;}
-  var S={t:'s',tl:tleft,cd:cd,go:goT,gt:gimT,e:[],b:[],d:NETD,ar:arPack()},i,e,b;
+  var S={t:'s',tl:tleft,cd:cd,go:goT,gt:gimT,e:[],b:[],d:NETD,ar:arPack(),yg:ygPack(),hk:hkPack()},i,e,b;
   NETD=[];
   for(i=0;i<ents.length;i++){e=ents[i];
     S.e.push([Math.round(e.x),Math.round(e.y),+e.a.toFixed(2),+((e.fa===undefined?e.a:e.fa)).toFixed(2),Math.round(e.hp),Math.round(e.ink),e.alive?1:0,e.dive?1:0,Math.round((e.jz||0)*10)/10,e.mvd?1:0,0,e.top?walls.indexOf(e.top):-1,+(e.rt||0).toFixed(1),e.kills,e.deaths,e.jmp?+(e.jmp.t/e.jmp.dur).toFixed(2):-1]);
@@ -3786,8 +3790,61 @@ function arUnpack(a){
   if(AR.holder&&AR.holder!==oh){var mine=NETSPEC?AR.holder===1:AR.holder===player.team;toast(mine?'エリアを確保!':'エリアを確保された! 塗り返せ',1800);sfx(mine?660:260,0.3,'triangle',0.06,1.4);}
   arSync();
 }
+function ygPack(){
+  if(!(MODE==='yagura'&&YG))return 0;
+  var gs=[],sd;
+  for(sd=1;sd<=2;sd++)YG.gates[sd].forEach(function(g){gs.push(+g.p.toFixed(3),g.done?1:0);});
+  var cur=-1;
+  if(YG.cur)for(sd=1;sd<=2;sd++){var k=YG.gates[sd].indexOf(YG.cur);if(k>=0)cur=sd*10+k;}
+  return [+YG.u.toFixed(2),YG.n[1],YG.n[2],+YG.idle.toFixed(2),YG.ctl,+YG.last[1].toFixed(1),+YG.last[2].toFixed(1),YG.C[1],YG.C[2],YG.ot?1:0,YG.ko,YG.st.pass,cur,gs];
+}
+function ygUnpack(a){
+  if(!a||!(MODE==='yagura'&&YG))return;
+  var pp=YG.st.pass,sd,j=0;
+  YG.u=a[0];YG.n[1]=a[1];YG.n[2]=a[2];YG.idle=a[3];YG.ctl=a[4];YG.last[1]=a[5];YG.last[2]=a[6];YG.C[1]=a[7];YG.C[2]=a[8];YG.ot=!!a[9];YG.ko=a[10];YG.st.pass=a[11];
+  var wasDone=[];for(sd=1;sd<=2;sd++)YG.gates[sd].forEach(function(g){wasDone.push(g.done);});
+  var di=0,gdone=[];
+  for(sd=1;sd<=2;sd++)YG.gates[sd].forEach(function(g){g.p=a[13][j++];g.done=!!a[13][j++];if(g.done&&!wasDone[di]){gdone.push(sd);}di++;});
+  gdone.forEach(function(s){var mine=NETSPEC?s===1:s===player.team;toast(mine?'関門突破! ヤグラが進む':'敵が関門を突破!',1800);sfx(520,0.3,'triangle',0.06,1.8);});
+  YG.cur=a[12]>=0?(YG.gates[Math.floor(a[12]/10)]||[])[a[12]%10]||null:null;
+}
+var HKS=['barrier','exposed','held'];
+function hkPack(){
+  if(!(MODE==='hoko'&&HK))return 0;
+  var sh=[];
+  HK.shots.forEach(function(s){sh.push(Math.round(s.x),Math.round(s.y),+s.c.toFixed(2),s.team);});
+  var hi=HK.holder?ents.indexOf(HK.holder):-1;
+  return [HKS.indexOf(HK.state),Math.round(HK.x),Math.round(HK.y),Math.round(HK.net),+Math.max(0,HK.form).toFixed(2),hi,+HK.hold.toFixed(1),+HK.idle.toFixed(1),HK.zone?1:0,HK.C[1],HK.C[2],HK.gp[1],HK.gp[2],HK.ot?1:0,HK.ko,HK.lastTeam,+HK.sinceHeld.toFixed(1),hi>=0?+HK.holder.hchg.toFixed(2):0,sh];
+}
+function hkUnpack(a){
+  if(!a||!(MODE==='hoko'&&HK))return;
+  var os=HK.state,ogp1=HK.gp[1],ogp2=HK.gp[2],oh=HK.holder,i;
+  HK.state=HKS[a[0]]||'barrier';HK.x=a[1];HK.y=a[2];HK.net=a[3];HK.form=a[4];HK.hold=a[6];HK.idle=a[7];HK.zone=!!a[8];
+  HK.C[1]=a[9];HK.C[2]=a[10];HK.gp[1]=a[11];HK.gp[2]=a[12];HK.ot=!!a[13];HK.ko=a[14];HK.lastTeam=a[15];HK.sinceHeld=a[16];
+  for(i=0;i<ents.length;i++){ents[i].pc=0;if(ents[i].hchg)ents[i].hchg=0;}
+  HK.holder=a[5]>=0?ents[a[5]]:null;
+  if(HK.holder){HK.holder.pc=1;HK.holder.hchg=a[17];}
+  var side=function(t){return NETSPEC?t===1:t===player.team;};
+  if(HK.holder&&HK.holder!==oh){toast(HK.holder===player?'ホコを持った! 関門→ゴールへ':(HK.holder.team===player.team||(NETSPEC&&HK.holder.team===1)?'味方がホコを持った!':'敵がホコを持った!'),1500);}
+  else if(os==='held'&&HK.state==='barrier'&&oh&&HK.gp[oh.team]===(oh.team===1?ogp1:ogp2))toast(side(oh.team)?'ホコ持ちがやられた! バリアが再生':'ホコ持ちを倒した! バリアが再生',1600);
+  else if(os==='barrier'&&HK.state==='exposed')toast('バリアが割れた! ホコを取れ!',1600);
+  if(HK.gp[1]>=0&&ogp1<0)toast(side(1)?'関門突破! ホコにバリアが再生':'敵が関門を突破!',1800);
+  if(HK.gp[2]>=0&&ogp2<0)toast(side(2)?'関門突破! ホコにバリアが再生':'敵が関門を突破!',1800);
+  var sh=a[18]||[],n=sh.length/4;
+  while(HK.shots.length>n){var d=HK.shots.pop();scene.remove(d.m);}
+  for(i=0;i<n;i++){
+    var s=HK.shots[i];
+    if(!s){var m=new THREE.Mesh(G.hshot,M.basic[sh[i*4+3]]);scene.add(m);s={x:sh[i*4],y:sh[i*4+1],tx:0,ty:0,c:0,team:sh[i*4+3],m:m};HK.shots.push(s);}
+    s.tx=sh[i*4];s.ty=sh[i*4+1];s.c=sh[i*4+2];s.m.scale.setScalar(0.7+0.9*s.c);
+  }
+}
+function hkGuestShots(dt){
+  if(!(MODE==='hoko'&&HK))return;
+  var k=1-Math.exp(-dt*18);
+  HK.shots.forEach(function(s){if(s.tx===0&&s.ty===0)return;s.x+=(s.tx-s.x)*k;s.y+=(s.ty-s.y)*k;s.m.position.set(s.x,22,s.y);});
+}
 function netEnd(){
-  var m={t:'end',g:gridStr(),ar:arPack()};
+  var m={t:'end',g:gridStr(),ar:arPack(),yg:ygPack(),hk:hkPack()};
   Object.keys(NP.guests).forEach(function(id){try{NP.guests[id].conn.send(m);}catch(e){}});
   $('again').hidden=false;
 }
@@ -3851,7 +3908,7 @@ function applySnap(S){
   if(!NETG||state!=='play'||ents.length!==8||!S.e||S.e.length!==8)return;
   var i,e,a,q,id,o;
   tleft=S.tl;cd=S.cd;goT=S.go;if(Math.abs(gimT-S.gt)>0.2)gimT=S.gt;
-  arUnpack(S.ar);
+  arUnpack(S.ar);ygUnpack(S.yg);hkUnpack(S.hk);
   for(i=0;i<8;i++){a=S.e[i];e=ents[i];
     var was=e.alive;
     e.nx=a[0];e.ny=a[1];e.na=a[2];e.nfa=a[3];
@@ -3906,11 +3963,12 @@ function netGuestUpdate(dt){
   else if(goT>0)setCount('GO!',true);
   else if(!player.alive)setCount('復帰まで '+Math.ceil(player.rt),true);
   else setCount('',false);
+  hkGuestShots(dt);
   updParts(dt);updFx(dt);
 }
 function netGuestEnd(m){
   if(!NETG)return;
-  applyGrid(m.g);arUnpack(m.ar);
+  applyGrid(m.g);arUnpack(m.ar);ygUnpack(m.yg);hkUnpack(m.hk);
   if(state==='play'){endMatch();$('again').hidden=true;$('endStats').textContent+=' ・ ホストの再開待ち';}
 }
 
